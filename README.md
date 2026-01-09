@@ -1,12 +1,16 @@
 # nanoMolmo2
 
-A minimal implementation of Molmo2 Vision-Language Model (VLM) from scratch for educational purposes.
+**🎓 A Vision-Language Model (VLM) Learning Project**
+
+A minimal implementation of Molmo2 VLM from scratch for educational purposes.
 
 ## Overview
 
-**nanoMolmo2** is an educational reimplementation of the [Molmo2](https://molmo.allenai.org/) Vision-Language Model, designed to help developers understand modern VLM architectures. This project uses **Qwen3-0.6B** as the base language model while following Molmo2's architecture and training methodology.
+**nanoMolmo2** is an educational reimplementation of the [Molmo2](https://molmo.allenai.org/) Vision-Language Model, designed to help developers **learn and understand modern VLM architectures from the ground up**. This hands-on project uses **Qwen3-0.6B** as the base language model while following Molmo2's architecture and training methodology.
 
-> ⚠️ **Note**: This is an educational project for learning purposes only, not intended for production use.
+🎯 **Primary Goal**: Provide a clear, educational implementation for learning how Vision-Language Models work - from architecture design to multimodal training.
+
+> ⚠️ **Note**: This is a **learning-focused educational project**, not intended for production use.
 
 ## Architecture
 
@@ -63,11 +67,15 @@ nanoMolmo2/
 
 ## Learning Resources
 
-This project is designed for educational exploration of:
-- Vision-language model architectures
-- Multimodal pretraining strategies
-- Efficient training on limited GPU resources
-- Distributed training with PyTorch
+**This project is specifically designed for learning Vision-Language Models (VLMs)**, covering:
+
+- **VLM Architecture Fundamentals**: Understanding how vision encoders connect with language models
+- **Multimodal Fusion**: How images and text are processed together
+- **Vision-Language Pretraining**: Strategies for training models on multimodal data
+- **Efficient VLM Training**: Training large multimodal models on limited GPU resources (2-4 A100s)
+- **Distributed Training**: Practical experience with PyTorch FSDP/DeepSpeed for VLMs
+
+💡 **Perfect for**: ML engineers wanting to understand VLM internals, researchers exploring multimodal architectures, students learning modern AI systems.
 
 ## License
 
