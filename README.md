@@ -4,10 +4,6 @@
 
 A minimal implementation of Molmo2 VLM from scratch for educational purposes.
 
-> **⚡ QUICK START**: See [START_HERE.md](./START_HERE.md) to download all datasets in 2 commands!
-> 
-> **📖 FULL GUIDE**: See [DOWNLOAD_GUIDE.md](./DOWNLOAD_GUIDE.md) for complete download instructions.
-
 ## Overview
 
 **nanoMolmo2** is an educational reimplementation of the [Molmo2](https://molmo.allenai.org/) Vision-Language Model, designed to help developers **learn and understand modern VLM architectures from the ground up**. This hands-on project uses **Qwen3-0.6B** as the base language model while following Molmo2's architecture and training methodology.
@@ -36,198 +32,114 @@ A minimal implementation of Molmo2 VLM from scratch for educational purposes.
 
 See [MODEL_ARCHITECTURE.md](./MODEL_ARCHITECTURE.md) for complete details.
 
-## Training Data
+## Quick Start
 
-Following Molmo2's data mixture:
-- Image-text pairs
-- Instruction-following datasets
-- Visual reasoning tasks
-- Detailed captions
+### Step 1: Install dependencies
 
-Refer to the [Molmo2 technical report](https://molmo.allenai.org/) for complete data composition.
+```bash
+pip install -r requirements.txt
+```
 
-## Training Setup
+### Step 2: Download datasets
 
-**Hardware Requirements**:
-- 2-4 NVIDIA A100 GPUs (40GB or 80GB)
-- Distributed training with DeepSpeed/FSDP
+```bash
+# Stage 1 pre-training only (~80GB, 5 datasets)
+python scripts/download_datasets.py --stage pretrain
 
-**Training Flow**:
-1. Vision encoder pretraining (optional, can use pretrained)
-2. Connector alignment phase
-3. Joint multimodal training
+# Stage 2 & 3 SFT datasets (~500GB, 29 datasets)
+python scripts/download_datasets.py --stage sft
+
+# All stages
+python scripts/download_datasets.py --stage all
+
+# Useful options:
+python scripts/download_datasets.py --list      # See all datasets
+python scripts/download_datasets.py --check     # Check download status
+python scripts/download_datasets.py --dry-run   # Preview without downloading
+```
+
+**Storage by Stage** (based on Molmo2 tech report):
+- **Stage 1**: ~80GB (5 datasets) - Pre-training with fixed ratios
+- **Stage 2 & 3**: ~500GB (29 datasets) - SFT (Stage 3 uses same data)
+
+See [DATASETS_BY_STAGE.md](./DATASETS_BY_STAGE.md) for complete breakdown.
+
+### Step 3: Train
+
+```bash
+# Stage 1: Pre-training
+python examples/train_with_stage_dataloaders.py --stage 1
+
+# Stage 2: SFT
+python examples/train_with_stage_dataloaders.py --stage 2
+
+# Stage 3: Long-context (same data, longer sequences)
+python examples/train_with_stage_dataloaders.py --stage 3
+```
 
 ## Project Structure
 
 ```
 nanoMolmo2/
-├── models/           # Model architectures
-├── data/            # Data loading and preprocessing
-├── training/        # Training scripts and configs
-├── configs/         # Model and training configurations
-├── scripts/         # Utility scripts
-└── README.md
+├── config/
+│   ├── model_config.yaml         # Model architecture config
+│   └── train_config.yaml         # Training parameters
+├── data/
+│   ├── dataloaders/              # Dataset implementations
+│   │   ├── base.py               # Base classes
+│   │   ├── image_datasets.py     # Image dataset loaders
+│   │   ├── video_datasets.py     # Video dataset loaders
+│   │   └── utils.py              # Utilities (packing, weighting)
+│   └── stage_dataloaders.py      # Stage-specific data modules
+├── examples/
+│   ├── minimal_pure_pytorch.py   # Minimal VLM implementation
+│   └── train_with_stage_dataloaders.py  # Training example
+├── scripts/
+│   ├── download_datasets.py      # Dataset downloader
+│   ├── inspect_molmo2_data.py    # Data inspection tool
+│   └── verify_model_setup.py     # Setup verification
+├── tests/
+│   └── test_dataloaders.py       # Unit tests
+├── DATASETS_BY_STAGE.md          # Dataset breakdown by stage
+├── MODEL_ARCHITECTURE.md         # Architecture details
+├── MOLMO2_TECH_REPORT_SUMMARY.md # Tech report summary
+├── PURE_PYTORCH_GUIDE.md         # Pure PyTorch implementation
+├── QUICKSTART.md                 # Quick start guide
+├── TRAINING_PIPELINE.md          # Training pipeline details
+├── YOUR_SETUP.md                 # Your specific setup
+├── requirements.txt              # Full dependencies
+└── requirements_minimal.txt      # Minimal dependencies
 ```
 
-## Getting Started
+## Training Pipeline
 
-### Prerequisites
-
-**Pure PyTorch Implementation** (Minimal Dependencies):
-
-```bash
-# Core requirements only (5 packages)
-pip install -r requirements_minimal.txt
-
-# This installs:
-# - torch, torchvision (deep learning)
-# - numpy, pillow (data processing)
-# - opencv-python (video processing)
-```
-
-**OR Full Requirements** (with HuggingFace tools):
-
-```bash
-# If you want to use pre-trained models and HF datasets
-pip install -r requirements.txt
-```
-
-**We implement everything from scratch using pure PyTorch for maximum learning!**  
-See [PURE_PYTORCH_GUIDE.md](./PURE_PYTORCH_GUIDE.md) for details.
-
-### Quick Start
-
-**👉 See [START_HERE.md](./START_HERE.md) for the simplest guide!**
-
-**Step 1: Install dependencies**
-
-```bash
-pip install -r requirements.txt
-```
-
-**Step 2: Download datasets**
-
-```bash
-# ONE COMMAND - Download all ~30 datasets from Molmo2 paper
-bash scripts/download_all.sh
-
-# OR use Python script for more control
-python scripts/download_datasets.py --all                # Everything (~150GB)
-python scripts/download_datasets.py --stage pretraining  # Just pre-training (~60GB)
-python scripts/download_datasets.py --molmo2-only        # Just Molmo2 datasets (~30GB)
-python scripts/download_datasets.py --list               # See all available
-```
-
-**Time**: 4-8 hours | **Size**: ~150GB | **Datasets**: ~30 from HuggingFace
-
-See [DOWNLOAD_GUIDE.md](./DOWNLOAD_GUIDE.md) for detailed instructions.
-
-**Step 3: Verify downloads**
-
-```bash
-# List downloaded datasets
-ls data/molmo2_datasets/
-
-# Inspect specific dataset
-python scripts/inspect_molmo2_data.py molmo2-cap --num-samples 5
-
-# Test dataloader
-python examples/train_with_stage_dataloaders.py --stage 1 --inspect
-```
-
-**Step 4: Train**
-
-```bash
-# Stage 1: Pre-training (60% caption, 30% pointing, 10% NLP)
-python examples/train_with_stage_dataloaders.py --stage 1 --batch-size 32
-
-# Stage 2: SFT (100+ datasets with sqrt-proportional sampling)
-python examples/train_with_stage_dataloaders.py --stage 2 --batch-size 16
-
-# Stage 3: Long-context (36,864 tokens, 384 frames)
-python examples/train_with_stage_dataloaders.py --stage 3 --batch-size 4
-
-# Or train all stages sequentially
-python examples/train_with_stage_dataloaders.py --all-stages
-```
-
-**See [QUICKSTART.md](./QUICKSTART.md) for detailed instructions.**
-
-**Step 0 (Optional): Verify your setup**
-
-```bash
-# Check that model components can load and estimate memory
-python scripts/verify_model_setup.py
-```
-
-This will show you:
-- ✓ Vision encoder loads correctly
-- ✓ Qwen3-0.6B LLM loads correctly
-- ✓ Memory estimates (~20GB per GPU)
-- ✓ Trainable parameter count (~500M)
-
-## 📚 Documentation
-
-### ⭐ New Documentation (2026-01-15)
-
-- **[YOUR_SETUP.md](./YOUR_SETUP.md)** - 🎯 **YOUR SPECIFIC SETUP** - Frozen encoder + Qwen3-0.6B configuration
-- **[MODEL_ARCHITECTURE.md](./MODEL_ARCHITECTURE.md)** - Complete architecture guide with code
-- **[SUMMARY.md](./SUMMARY.md)** - ✨ Complete implementation summary and next steps
-- **[MOLMO2_TECH_REPORT_SUMMARY.md](./MOLMO2_TECH_REPORT_SUMMARY.md)** - Comprehensive Molmo2 paper summary (30+ pages)
-- **[TRAINING_PIPELINE.md](./TRAINING_PIPELINE.md)** - Visual guide to 3-stage training pipeline
-- **[QUICKSTART.md](./QUICKSTART.md)** - Complete guide from setup to training
-- **[START_HERE.md](./START_HERE.md)** - Quickest 2-command download guide
-- **[DOWNLOAD_GUIDE.md](./DOWNLOAD_GUIDE.md)** - Complete dataset download guide
-
-### Core Documentation
-
-- **[data/stage_dataloaders.py](./data/stage_dataloaders.py)** - ⭐ NEW: Stage-specific dataloaders implementation
-- **[examples/train_with_stage_dataloaders.py](./examples/train_with_stage_dataloaders.py)** - ⭐ NEW: Training examples
-- **[data/README.md](./data/README.md)** - Data pipeline overview
-- **[data/dataloaders/README.md](./data/dataloaders/README.md)** - Detailed dataloader documentation (70+ pages)
-
-### Training Pipeline
-
-The training follows Molmo2's 3-stage approach:
+Based on Molmo2's 3-stage approach:
 
 ```
-Stage 1: Pre-training (Image-only)
+Stage 1: Pre-training (5 datasets, ~80GB)
 ├── 60% Dense captioning (PixMo-Cap)
-├── 30% Image pointing (PixMo-Points, PixMo-Count)
+├── 30% Image pointing (PixMo-Points, PixMo-Count, CoSyn-Point)
 └── 10% NLP data (Tulu)
     ↓
-    Steps: ~100K | Seq: 4,096 tokens | Hardware: 16-32 A100s
-    
-Stage 2: Supervised Fine-Tuning
+Stage 2: Supervised Fine-Tuning (100+ datasets)
 ├── Molmo2 datasets (video cap, QA, pointing, tracking)
 ├── PixMo datasets (image cap, QA, pointing)
 └── Academic datasets (VQA, DocVQA, ChartQA, ...)
     ↓
-    Steps: ~50K | Seq: 4,096 tokens | Frames: 128 | Hardware: 8-16 A100s
-    
-Stage 3: Long-Context SFT
-├── Same datasets as Stage 2
-└── Extended sequences and frames
-    ↓
-    Steps: 2K | Seq: 36,864 tokens | Frames: 384 | Hardware: 16-32 A100s
+Stage 3: Long-Context SFT (same datasets as Stage 2)
+├── Longer sequences: 36,864 tokens (vs 4,096)
+└── More frames: 384 (vs 128)
 ```
 
-### Datasets
+## Documentation
 
-**9 New Molmo2 Datasets** (released by Ai2):
-- `Molmo2-Cap` - Dense video captioning
-- `Molmo2-AskModelAnything` - Human-authored video QA
-- `Molmo2-VideoCapQA` - Synthetic video QA
-- `Molmo2-VideoSubtitleQA` - Video QA with subtitles
-- `Molmo2-VideoPoint` - Video temporal pointing (NOVEL)
-- `Molmo2-VideoTrack` - Video object tracking (NOVEL)
-- `Molmo2-MultiImageQA` - Multi-image QA
-- `Molmo2-SynMultiImageQA` - Synthetic multi-image QA
-- `Molmo2-MultiImagePoint` - Multi-image pointing
-
-**Plus**: PixMo datasets, 100+ academic datasets (see `scripts/download_molmo2_data_v2.py`)
-
-All available on HuggingFace: https://huggingface.co/collections/allenai/molmo2-data
+- **[DATASETS_BY_STAGE.md](./DATASETS_BY_STAGE.md)** - Complete dataset breakdown
+- **[MODEL_ARCHITECTURE.md](./MODEL_ARCHITECTURE.md)** - Architecture details
+- **[MOLMO2_TECH_REPORT_SUMMARY.md](./MOLMO2_TECH_REPORT_SUMMARY.md)** - Molmo2 paper summary
+- **[TRAINING_PIPELINE.md](./TRAINING_PIPELINE.md)** - Training pipeline guide
+- **[PURE_PYTORCH_GUIDE.md](./PURE_PYTORCH_GUIDE.md)** - Pure PyTorch implementation
+- **[QUICKSTART.md](./QUICKSTART.md)** - Detailed quick start
+- **[YOUR_SETUP.md](./YOUR_SETUP.md)** - Your specific configuration
 
 ## References
 
@@ -236,27 +148,9 @@ All available on HuggingFace: https://huggingface.co/collections/allenai/molmo2-
 - [Qwen3 Model](https://github.com/QwenLM/Qwen3)
 - [HuggingFace Molmo2 Collection](https://huggingface.co/collections/allenai/molmo2-data)
 
-## Learning Resources
-
-**This project is specifically designed for learning Vision-Language Models (VLMs)**, covering:
-
-- **VLM Architecture Fundamentals**: Understanding how vision encoders connect with language models
-- **Multimodal Fusion**: How images and text are processed together
-- **Vision-Language Pretraining**: Strategies for training models on multimodal data
-- **Efficient VLM Training**: Training large multimodal models on limited GPU resources (2-4 A100s)
-- **Distributed Training**: Practical experience with PyTorch FSDP/DeepSpeed for VLMs
-
-💡 **Perfect for**: ML engineers wanting to understand VLM internals, researchers exploring multimodal architectures, students learning modern AI systems.
-
 ## License
 
 MIT License - See LICENSE file for details.
-
-## Acknowledgments
-
-- Allen Institute for AI for the Molmo2 architecture and methodology
-- Alibaba Cloud for the Qwen3 base model
-- The open-source ML community
 
 ---
 
