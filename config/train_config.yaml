@@ -1,0 +1,252 @@
+# nanoMolmo2 Training Configuration
+# 3-stage training with frozen vision encoder
+
+# ============================================================================
+# STAGE 1: PRE-TRAINING
+# Goal: Learn vision-language alignment
+# Data: 60% caption, 30% pointing, 10% NLP
+# ============================================================================
+
+stage1_pretraining:
+  # Model
+  freeze_vision_encoder: true
+  train_connector: true
+  train_llm: true
+  
+  # Data
+  data_root: "./data/molmo2_datasets"
+  max_seq_length: 4096
+  max_frames: null  # Image-only in pre-training
+  fps: null
+  
+  # Training
+  num_epochs: 3
+  max_steps: 100000
+  save_every: 5000
+  eval_every: 2000
+  
+  # Batch size
+  batch_size_per_gpu: 32
+  gradient_accumulation_steps: 4
+  num_gpus: 4
+  effective_batch_size: 512  # 32 × 4 × 4
+  
+  # Optimization
+  learning_rate: 1.0e-4
+  weight_decay: 0.01
+  warmup_steps: 2000
+  lr_scheduler: "cosine"
+  max_grad_norm: 1.0
+  
+  # Mixed precision
+  fp16: false
+  bf16: true
+  
+  # Hardware
+  num_workers: 4
+  pin_memory: true
+  
+  # Checkpointing
+  save_dir: "./checkpoints/stage1"
+  resume_from: null
+  
+  # Logging
+  log_every: 100
+  wandb_project: "nanoMolmo2"
+  wandb_run_name: "stage1-pretraining"
+
+# ============================================================================
+# STAGE 2: SUPERVISED FINE-TUNING (SFT)
+# Goal: Instruction following and multimodal understanding
+# Data: 100+ datasets with sqrt-proportional sampling
+# ============================================================================
+
+stage2_sft:
+  # Model
+  freeze_vision_encoder: true
+  train_connector: true
+  train_llm: true
+  
+  # Data
+  data_root: "./data/molmo2_datasets"
+  max_seq_length: 4096
+  max_frames: 128
+  fps: 2.0
+  
+  # Training
+  num_epochs: 2
+  max_steps: 50000
+  save_every: 2000
+  eval_every: 1000
+  
+  # Batch size
+  batch_size_per_gpu: 16
+  gradient_accumulation_steps: 8
+  num_gpus: 4
+  effective_batch_size: 512  # 16 × 8 × 4
+  
+  # Optimization
+  learning_rate: 5.0e-5
+  weight_decay: 0.01
+  warmup_steps: 1000
+  lr_scheduler: "cosine"
+  max_grad_norm: 1.0
+  
+  # Mixed precision
+  fp16: false
+  bf16: true
+  
+  # Hardware
+  num_workers: 4
+  pin_memory: true
+  
+  # Checkpointing
+  save_dir: "./checkpoints/stage2"
+  resume_from: "./checkpoints/stage1/final"
+  
+  # Logging
+  log_every: 50
+  wandb_project: "nanoMolmo2"
+  wandb_run_name: "stage2-sft"
+
+# ============================================================================
+# STAGE 3: LONG-CONTEXT SFT
+# Goal: Handle extended video sequences
+# Data: Same as Stage 2, longer sequences
+# ============================================================================
+
+stage3_long_context:
+  # Model
+  freeze_vision_encoder: true
+  train_connector: true
+  train_llm: true
+  
+  # Data
+  data_root: "./data/molmo2_datasets"
+  max_seq_length: 36864  # 9× longer
+  max_frames: 384  # 3× more frames
+  fps: 2.0
+  
+  # Training
+  num_epochs: 1
+  max_steps: 2000
+  save_every: 500
+  eval_every: 200
+  
+  # Batch size (smaller due to long sequences)
+  batch_size_per_gpu: 4
+  gradient_accumulation_steps: 16
+  num_gpus: 4
+  effective_batch_size: 256  # 4 × 16 × 4
+  
+  # Optimization
+  learning_rate: 3.0e-5
+  weight_decay: 0.01
+  warmup_steps: 100
+  lr_scheduler: "cosine"
+  max_grad_norm: 1.0
+  
+  # Mixed precision
+  fp16: false
+  bf16: true
+  
+  # Hardware
+  num_workers: 4
+  pin_memory: true
+  
+  # Checkpointing
+  save_dir: "./checkpoints/stage3"
+  resume_from: "./checkpoints/stage2/final"
+  
+  # Logging
+  log_every: 20
+  wandb_project: "nanoMolmo2"
+  wandb_run_name: "stage3-long-context"
+  
+  # Long-context specific
+  use_context_parallelism: true  # Required for 36K tokens
+  cp_size: 2  # Context parallel size
+
+# ============================================================================
+# MEMORY OPTIMIZATION (with frozen vision encoder)
+# ============================================================================
+
+memory_optimization:
+  # Gradient checkpointing
+  use_gradient_checkpointing: true
+  checkpoint_vision_encoder: false  # Frozen, no need
+  checkpoint_connector: false  # Small, keep in memory
+  checkpoint_llm: true  # Large, checkpoint it
+  
+  # Sequence packing
+  use_sequence_packing: true
+  pack_factor: 1.5  # Try to pack 1.5× more tokens
+  
+  # Flash Attention
+  use_flash_attention: true
+  
+  # CPU offloading (if needed)
+  offload_optimizer_states: false  # Only if OOM
+  offload_params: false
+
+# ============================================================================
+# DISTRIBUTED TRAINING
+# ============================================================================
+
+distributed:
+  # Strategy
+  strategy: "ddp"  # Options: "ddp", "fsdp", "deepspeed"
+  
+  # DDP settings
+  find_unused_parameters: false
+  gradient_as_bucket_view: true
+  
+  # FSDP settings (if using FSDP)
+  fsdp_sharding_strategy: "FULL_SHARD"
+  fsdp_offload: false
+  
+  # DeepSpeed settings (if using DeepSpeed)
+  deepspeed_config: "./config/deepspeed_config.json"
+
+# ============================================================================
+# EVALUATION
+# ============================================================================
+
+evaluation:
+  eval_datasets:
+    - "molmo2-capeval"
+    - "molmo2-videopointeval"
+  
+  metrics:
+    - "accuracy"
+    - "loss"
+    - "perplexity"
+  
+  save_predictions: true
+  predictions_dir: "./predictions"
+
+# ============================================================================
+# HARDWARE REQUIREMENTS
+# ============================================================================
+
+hardware_requirements:
+  stage1:
+    min_gpus: 2
+    recommended_gpus: 4
+    gpu_type: "A100 40GB"
+    per_gpu_memory: "~20 GB"
+    estimated_time: "5-7 days"
+  
+  stage2:
+    min_gpus: 2
+    recommended_gpus: 4
+    gpu_type: "A100 40GB"
+    per_gpu_memory: "~22 GB"
+    estimated_time: "2-3 days"
+  
+  stage3:
+    min_gpus: 4
+    recommended_gpus: 8
+    gpu_type: "A100 80GB"
+    per_gpu_memory: "~35 GB"
+    estimated_time: "4-6 hours"

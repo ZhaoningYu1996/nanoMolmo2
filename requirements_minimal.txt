@@ -1,0 +1,33 @@
+# Minimal Requirements for Pure PyTorch Implementation
+# nanoMolmo2 - Educational VLM with minimal dependencies
+
+# Core Deep Learning (REQUIRED)
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Data Processing (REQUIRED)
+numpy>=1.24.0
+pillow>=10.0.0
+
+# Video Processing (REQUIRED for video datasets)
+opencv-python>=4.8.0
+
+# Data Format (OPTIONAL but recommended)
+pyarrow>=14.0.0  # For reading parquet files from HuggingFace
+
+# Progress Bars (OPTIONAL)
+tqdm>=4.66.0
+
+# Logging (OPTIONAL)
+tensorboard>=2.14.0
+
+# =============================================================================
+# NOT NEEDED (Pure PyTorch implementation):
+# - transformers (we implement models from scratch)
+# - datasets (we implement dataloaders from scratch)
+# - accelerate (we write training loop from scratch)
+# - deepspeed (optional, can add later for distributed training)
+# =============================================================================
+
+# Total core dependencies: 5 packages
+# torch, torchvision, numpy, pillow, opencv-python
