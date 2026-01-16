@@ -102,7 +102,7 @@ def main():
     parser.add_argument(
         "--data-dir",
         type=str,
-        default="./data/molmo2_datasets",
+        default="./data/molmo2",
         help="Directory containing datasets"
     )
     parser.add_argument(

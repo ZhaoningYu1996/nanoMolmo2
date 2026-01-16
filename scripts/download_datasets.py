@@ -62,8 +62,7 @@ PRETRAIN_DATASETS = [
         hf_path="allenai/pixmo-cap",
         description="Dense image captioning (~200 words avg)",
         stage="pretrain",
-        examples="710k",
-        size_gb=30,
+        examples="717k",
         ratio="60%",
     ),
     DatasetInfo(
@@ -71,8 +70,7 @@ PRETRAIN_DATASETS = [
         hf_path="allenai/pixmo-points",
         description="Image pointing with referring expressions",
         stage="pretrain",
-        examples="800k",
-        size_gb=20,
+        examples="2.38M",
         ratio="15%",
     ),
     DatasetInfo(
@@ -80,8 +78,7 @@ PRETRAIN_DATASETS = [
         hf_path="allenai/pixmo-count",
         description="Object counting QA",
         stage="pretrain",
-        examples="800k",
-        size_gb=15,
+        examples="36.9k",
         ratio="10%",
     ),
     DatasetInfo(
@@ -89,8 +86,7 @@ PRETRAIN_DATASETS = [
         hf_path="allenai/cosyn-point",
         description="Synthetic pointing data",
         stage="pretrain",
-        examples="500k",
-        size_gb=10,
+        examples="68.1k",
         ratio="5%",
     ),
     DatasetInfo(
@@ -98,8 +94,7 @@ PRETRAIN_DATASETS = [
         hf_path="allenai/tulu-v2-sft-mixture",
         description="Text-only instruction data (NLP)",
         stage="pretrain",
-        examples="980k",
-        size_gb=5,
+        examples="326k",
         ratio="10%",
     ),
 ]
