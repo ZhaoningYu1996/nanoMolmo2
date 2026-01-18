@@ -36,7 +36,7 @@ Based on the **Molmo2 Technical Report**
 | 2 | `pixmo-points` | Image pointing with referring expressions | 800k | 15% | ~20GB |
 | 3 | `pixmo-count` | Object counting QA | 800k | 10% | ~15GB |
 | 4 | `cosyn-point` | Synthetic pointing data | 500k | 5% | ~10GB |
-| 5 | `tulu-v2-sft-mixture` | Text-only instruction data | 980k | 10% | ~5GB |
+| 5 | `tulu-3-sft-mixture` | Text-only instruction data | 940k | 10% | ~5GB |
 
 **Total: 5 datasets, ~80GB**
 
@@ -130,7 +130,7 @@ python3 scripts/download_stage1_pretraining.py
 
 | # | Dataset | Description | Examples | Size |
 |---|---------|-------------|----------|------|
-| 1 | `tulu-v2-sft-mixture` | Text-only instruction data | 980k | ~5GB |
+| 1 | `tulu-3-sft-mixture` | Text-only instruction data | 940k | ~5GB |
 
 ### Download:
 
@@ -217,7 +217,7 @@ python examples/train_stage3.py --seq-length 36864 --max-frames 384
 2. pixmo-points
 3. pixmo-count
 4. cosyn-point
-5. tulu-v2-sft-mixture
+5. tulu-3-sft-mixture
 
 **Stage 2 adds (100+ total):**
 - 9 Molmo2 original datasets

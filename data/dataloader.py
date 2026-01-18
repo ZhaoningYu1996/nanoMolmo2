@@ -183,7 +183,7 @@ DATASETS = {
     "pixmo-points": (PointingDataset, 0.15),
     "pixmo-count": (CountingDataset, 0.10),
     "cosyn-point": (SyntheticPointingDataset, 0.05),
-    "tulu-v2-sft-mixture": (TextDataset, 0.10),
+    "tulu-3-sft-mixture": (TextDataset, 0.10),
 }
 
 

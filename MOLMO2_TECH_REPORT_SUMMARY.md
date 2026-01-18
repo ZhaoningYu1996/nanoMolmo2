@@ -87,7 +87,7 @@ Molmo2 is a family of open-source multimodal AI models designed for **video and 
 2. `pixmo-points` - Image pointing with referring expressions
 3. `pixmo-count` - Object counting QA
 4. `cosyn-point` - Synthetic pointing data
-5. `tulu-v2-sft-mixture` - Text-only instruction data
+5. `tulu-3-sft-mixture` - Text-only instruction data
 
 ---
 
@@ -155,7 +155,7 @@ Molmo2 is a family of open-source multimodal AI models designed for **video and 
 - And 10+ more tracking datasets...
 
 #### Text Data:
-- `tulu-v2-sft-mixture` (980k) - Text-only instruction data
+- `tulu-3-sft-mixture` (940k) - Text-only instruction data
 
 ---
 

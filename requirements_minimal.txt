@@ -18,7 +18,8 @@ pyarrow>=14.0.0  # For reading parquet files from HuggingFace
 # Progress Bars (OPTIONAL)
 tqdm>=4.66.0
 
-# Logging (OPTIONAL)
+# Logging (OPTIONAL but recommended)
+wandb>=0.16.0  # Weights & Biases for experiment tracking
 tensorboard>=2.14.0
 
 # =============================================================================

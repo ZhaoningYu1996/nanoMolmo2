@@ -1,0 +1,30 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS
+.DS_Store
+
+# pytest
+.pytest_cache/
+
+# Model checkpoints
+checkpoints/
+
+# Training logs
+logs/
+
+# Dataset files (parquet, images, cache)
+data/molmo2/
+
+# Weights & Biases
+wandb/

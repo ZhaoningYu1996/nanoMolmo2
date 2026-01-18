@@ -49,7 +49,7 @@ class DatasetInfo:
     description: str
     stage: str  # "pretrain" or "sft"
     examples: str
-    size_gb: float
+    size_gb: float = 0.0  # Estimated size in GB
     ratio: Optional[str] = None  # For pretrain stage
     category: Optional[str] = None  # For sft stage
 
@@ -90,11 +90,11 @@ PRETRAIN_DATASETS = [
         ratio="5%",
     ),
     DatasetInfo(
-        name="tulu-v2-sft-mixture",
-        hf_path="allenai/tulu-v2-sft-mixture",
+        name="tulu-3-sft-mixture",
+        hf_path="allenai/tulu-3-sft-mixture",
         description="Text-only instruction data (NLP)",
         stage="pretrain",
-        examples="326k",
+        examples="940k",
         ratio="10%",
     ),
 ]
@@ -447,11 +447,18 @@ class DatasetDownloader:
         
         try:
             # Download from HuggingFace
-            dataset_obj = load_dataset(
-                dataset.hf_path,
-                cache_dir=str(self.data_dir / ".cache"),
-                trust_remote_code=True,
-            )
+            try:
+                dataset_obj = load_dataset(
+                    dataset.hf_path,
+                    cache_dir=str(self.data_dir / ".cache"),
+                )
+            except Exception:
+                # Fallback: try with trust_remote_code for older datasets
+                dataset_obj = load_dataset(
+                    dataset.hf_path,
+                    cache_dir=str(self.data_dir / ".cache"),
+                    trust_remote_code=True,
+                )
             
             # Save to local directory
             save_path = self.data_dir / dataset.name
